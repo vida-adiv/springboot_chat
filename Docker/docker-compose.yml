@@ -1,0 +1,17 @@
+#version: '3.9'          # or any version you prefer
+services:
+  db:
+    image: postgres:16               # pick the tag you need
+    container_name: pg_container
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: sb_user          # ← username
+      POSTGRES_PASSWORD: my_secret    # ← password
+      POSTGRES_DB: sb_database        # ← default DB created at startup
+    volumes:
+      - pg_data:/var/lib/postgresql/data   # persist data
+    ports:
+      - "5433:5432"                  # expose port (optional)
+
+volumes:
+  pg_data:
