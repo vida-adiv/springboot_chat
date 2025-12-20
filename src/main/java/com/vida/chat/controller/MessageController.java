@@ -1,0 +1,36 @@
+package com.vida.chat.controller;
+
+import com.vida.chat.models.Message;
+import com.vida.chat.models.MessageResponse;
+import com.vida.chat.repository.MessageRepository;
+import org.jspecify.annotations.NonNull;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@Controller
+public class MessageController {
+
+    @Autowired
+    private MessageRepository messageRepository;
+
+
+    @PostMapping(path="/msg",
+    consumes = MediaType.APPLICATION_JSON_VALUE,
+    produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<@NonNull MessageResponse> sendMsg(@RequestBody Message msg){
+        messageRepository.save(msg);
+        return ResponseEntity.accepted().body(new MessageResponse(200, "saved"));
+    }
+
+    @GetMapping(path="/msg")
+    @ResponseBody
+    public List<Message> getMsg(@RequestParam (value="rec") int rec){
+        return messageRepository.findByRec(rec);
+    }
+}
