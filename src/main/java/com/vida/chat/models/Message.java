@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 @Entity
 @Table(name="messages")
 public class Message {
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     int id;
@@ -33,4 +34,12 @@ public class Message {
     public void setRec(int rec) {
         this.rec = rec;
     }
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
 }

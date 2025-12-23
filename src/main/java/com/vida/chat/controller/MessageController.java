@@ -11,6 +11,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 public class MessageController {
@@ -32,5 +33,18 @@ public class MessageController {
     @ResponseBody
     public List<Message> getMsg(@RequestParam (value="rec") int rec){
         return messageRepository.findByRec(rec);
+    }
+
+    @DeleteMapping(path="/msg/{id}",
+    consumes =MediaType.APPLICATION_JSON_VALUE,
+            produces=MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<@NonNull MessageResponse> deleteMsg(@PathVariable int id){
+        Optional<Message> optionalMessage = messageRepository.findById(id);
+        if (optionalMessage.isPresent()) {
+            messageRepository.deleteById(id);
+            return ResponseEntity.accepted().body(new MessageResponse(200, "deleted"));
+        } else {
+            return ResponseEntity.badRequest().body(new MessageResponse(404, "message not found"));
+        }
     }
 }

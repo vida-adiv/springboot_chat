@@ -95,19 +95,33 @@ def pretty_print_json(data: Any) -> None:
     """Print JSON data with indentation."""
     print(json.dumps(data, indent=2, ensure_ascii=False))
 
+def delete_message(id: int) -> None:
+    """
+    Calls DELETE /msg/{id} and deletes the message with the given id.
 
+    Args:
+        id (int): The ID of the message to be deleted.
+    """
+    url = f"{BASE_URL}/msg/{id}"
+    headers = {"Content-Type": "application/json", "Accept": "application/json"}
+    resp = requests.delete(url, headers=headers)
+    if resp.status_code == 200:
+        print(f"✅ Message {id} has been deleted.")
+    else:
+        print(f"❌ Error deleting message {id}: {resp.text}")
 def main() -> None:
     # ------------------------------------------------------------------
     # Example workflow – feel free to modify / extend
     # ------------------------------------------------------------------
     try:
-        # 1️⃣ Create a new user (change the values as you like)
+
         payload = {
-            "rec": 2,
-            "msg": "another test message"
+            "rec": 1,
+            "msg": "hey again, alice"
 
         }
         result = send_message(payload)
+
         print(f"✅ Server response: {result}")
 
         # 2️⃣ Retrieve the full list of users

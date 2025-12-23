@@ -9,7 +9,16 @@ public class User {
     @GeneratedValue(strategy = GenerationType.AUTO)
     int id;
     String name;
-    String bio; //TODO
+    @Lob
+    String publicKey;
+
+    public String getPublicKey() {
+        return publicKey;
+    }
+
+    public void setPublicKey(String publicKey) {
+        this.publicKey = publicKey;
+    }
 
     public int getId() {
         return id;
@@ -22,7 +31,5 @@ public class User {
         this.name = name;
     }
 
-    public void setBio(String bio) {
-        this.bio = bio;
-    }
+
 }

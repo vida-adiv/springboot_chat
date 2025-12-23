@@ -20,13 +20,11 @@ public class UserController {
         return userRepository.findByName(name);
     }
 
-    @PostMapping(path="/user/add")
+    @PostMapping(path="/user/create")
     @ResponseBody
-    public String addUser(@RequestParam String name, @RequestParam String bio){
-        User u = new User();
-        u.setName(name);
-        u.setBio(bio);
-        userRepository.save(u);
+    public String addUser(@RequestBody User user){
+        System.out.println("hey there");
+        userRepository.save(user);
         return "saved";
     }
     @GetMapping(path="/users")
