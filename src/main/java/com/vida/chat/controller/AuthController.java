@@ -2,6 +2,7 @@ package com.vida.chat.controller;
 
 import com.vida.chat.models.User;
 import com.vida.chat.repository.UserRepository;
+import com.vida.chat.service.JwtProvider;
 import com.vida.chat.service.NonceService;
 import com.vida.chat.models.TokenRequest;
 import lombok.AllArgsConstructor;
@@ -32,41 +33,47 @@ public class AuthController {
     @Autowired
     private NonceService nonceService;
 
+    @Autowired
+    private JwtProvider jwtProvider;
+
 
     @GetMapping("/nonce/{id}")
-    public ResponseEntity<Map<String,String>> getNonce(@PathVariable int id){
-        if(!userRepository.existsById(id)){
-            return ResponseEntity.badRequest().body(Collections.singletonMap("error","unknown id"));
-        }else{
+    public ResponseEntity<Map<String, String>> getNonce(@PathVariable int id) {
+        if (!userRepository.existsById(id)) {
+            return ResponseEntity.badRequest().body(Collections.singletonMap("error", "unknown id"));
+        } else {
 
             String nonce = nonceService.createNonce(id);
-            return ResponseEntity.ok(Collections.singletonMap("nonce",nonce));
+            return ResponseEntity.ok(Collections.singletonMap("nonce", nonce));
         }
     }
 
 
     @PostMapping("/token")
-    public ResponseEntity<?> verify(@RequestBody TokenRequest request){
-        if (!userRepository.existsById(request.getUserId())){
-            return ResponseEntity.badRequest().body("not found");
+    public ResponseEntity<?> verify(@RequestBody TokenRequest request) {
+        if (!userRepository.existsById(request.getUserId())) {
+            return ResponseEntity.badRequest().body("User not found");
         }
-        String storedNonce =nonceService.consumeNonce(request.getUserId(), request.getNonce());
+        String storedNonce = nonceService.consumeNonce(request.getUserId(), request.getNonce());
         if (storedNonce == null) {
             return ResponseEntity.badRequest()
                     .body(Collections.singletonMap("error", "invalid or expired nonce"));
         }
 
         // Implement verifying signature
-        int userId=request.getUserId();
-        Optional<User> user_op=userRepository.findById(userId);
-        if(user_op.isEmpty()){
+        int userId = request.getUserId();
+        Optional<User> user_op = userRepository.findById(userId);
+        if (user_op.isEmpty()) {
             return ResponseEntity.badRequest().body("user not found");
         }
-        User user=user_op.get();
-        try{
+        User user = user_op.get();
+        try {
             PublicKey pubKey = loadPublicKeyFromPem(user.getPublicKey());
-            verifySignature(pubKey, request.getNonce(), request.getSignature());
-            return ResponseEntity.ok(Collections.singletonMap("accessToken","1234lala"));
+            if (verifySignature(pubKey, request.getNonce(), request.getSignature())) {
+
+                return ResponseEntity.ok(Collections.singletonMap("accessToken", jwtProvider.generateToken(userId)));
+            }
+            return ResponseEntity.badRequest().body("Verification failed, ");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e);
         }
@@ -88,15 +95,16 @@ public class AuthController {
             }
         }
     }
+
     private static boolean verifySignature(PublicKey key,
                                            String nonceBase64,
                                            String signatureBase64) {
         try {
-            // 1️⃣ Decode the incoming Base64‑URL strings
+            // Decode the incoming Base64‑URL strings
             byte[] data = Base64.getUrlDecoder().decode(nonceBase64);
-            byte[] sig  = Base64.getUrlDecoder().decode(signatureBase64);
+            byte[] sig = Base64.getUrlDecoder().decode(signatureBase64);
 
-            // 2️⃣ Choose the JCA algorithm name based on the key type
+            // Choose the JCA algorithm name based on the key type
             String algo;
             switch (key.getAlgorithm().toUpperCase()) {
                 case "RSA":
@@ -115,6 +123,7 @@ public class AuthController {
             verifier.initVerify(key);
             verifier.update(data);
             return verifier.verify(sig);
+
         } catch (Exception e) {
             // Wrap any checked exception (NoSuchAlgorithmException,
             // InvalidKeyException, SignatureException, IllegalArgumentException, …)

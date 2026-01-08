@@ -29,6 +29,7 @@ from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat,
 # ----------------------------------------------------------------------
 # Configuration ---------------------------------------------------------
 # ----------------------------------------------------------------------
+USER_ID=52
 BASE_URL = "http://localhost:8080"          # change if your server runs elsewhere
 REGISTER_ENDPOINT = f"{BASE_URL}/user/create"
 #NONCE_ENDPOINT = f"{BASE_URL}/auth/nonce"
@@ -242,13 +243,13 @@ def main():
         private_key = load_private_key()
 
         # a) ask server for a nonce
-        nonce = get_nonce(1)
+        nonce = get_nonce(USER_ID)
 
         # b) sign the nonce with our private key
         signature = sign_nonce(private_key, nonce)
 
         # c) exchange the signed nonce for a JWT
-        jwt = exchange_token(1, nonce, signature)
+        jwt = exchange_token(USER_ID, nonce, signature)
         print(jwt)
         # d) store the JWT locally for later reuse (optional)
         token_path = KEY_DIR / f"{username}_jwt.txt"
