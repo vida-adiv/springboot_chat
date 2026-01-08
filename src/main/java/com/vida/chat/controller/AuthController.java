@@ -65,7 +65,7 @@ public class AuthController {
         User user=user_op.get();
         try{
             PublicKey pubKey = loadPublicKeyFromPem(user.getPublicKey());
-            verifySignature(pubKey,request.getNonce(),request.getSignature());
+            verifySignature(pubKey, request.getNonce(), request.getSignature());
             return ResponseEntity.ok(Collections.singletonMap("accessToken","1234lala"));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e);
