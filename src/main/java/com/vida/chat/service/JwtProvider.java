@@ -50,4 +50,10 @@ public class JwtProvider {
         }
         return true;
     }
+
+    public Integer getUserIdFromJwt(String token) {
+        Jws<Claims> jws = Jwts.parser().verifyWith(key).build().parseSignedClaims(token);
+        Object rawUserId = jws.getPayload().get("userId");
+        return ((Number)rawUserId).intValue();
+    }
 }
