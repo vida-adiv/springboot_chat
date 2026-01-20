@@ -7,6 +7,7 @@ import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,16 +32,16 @@ public class MessageController {
 
     @GetMapping(path="/msg")
     @ResponseBody
-    public List<Message> getMsg(@RequestParam (value="rec") int rec){
+    public List<Message> getMsg(@AuthenticationPrincipal Integer userId){
         //todo get recipient id from token, otherwise this is NOT SECURE!!!
-        return messageRepository.findByRec(rec);
+        return messageRepository.findByRec(userId);
     }
 
     @DeleteMapping(path="/msg/{id}",
     consumes =MediaType.APPLICATION_JSON_VALUE,
             produces=MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<@NonNull MessageResponse> deleteMsg(@PathVariable int id){
-        //TODO verify user
+        //TODO verify user. Get userId from token and only search that users messages
         Optional<Message> optionalMessage = messageRepository.findById(id);
         if (optionalMessage.isPresent()) {
             messageRepository.deleteById(id);

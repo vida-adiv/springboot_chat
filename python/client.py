@@ -204,7 +204,7 @@ def call_protected_endpoint(jwt: str, path: str = "/api/messages"):
 # ----------------------------------------------------------------------
 def main():
     if len(sys.argv) < 3:
-        print("Usage: python client.py <username> <action>")
+        print("Usage: python client_old.py <username> <action>")
         print("  actions: generate-keys | register | login | test")
         sys.exit(1)
 

@@ -26,3 +26,18 @@ big todo, this is unsecure atm
 #### GET
 RequestParam *name*
 Get user by name
+
+
+## Designing a test client
+- store all user info in a file
+  - keys
+  - userId
+- can create/register users
+- can log in
+- can send messages
+- can retrieve messages
+- can delete its own messages
+
+
+### future features
+#### offline scenario
