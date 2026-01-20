@@ -32,6 +32,7 @@ public class MessageController {
     @GetMapping(path="/msg")
     @ResponseBody
     public List<Message> getMsg(@RequestParam (value="rec") int rec){
+        //todo get recipient id from token, otherwise this is NOT SECURE!!!
         return messageRepository.findByRec(rec);
     }
 
@@ -39,6 +40,7 @@ public class MessageController {
     consumes =MediaType.APPLICATION_JSON_VALUE,
             produces=MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<@NonNull MessageResponse> deleteMsg(@PathVariable int id){
+        //TODO verify user
         Optional<Message> optionalMessage = messageRepository.findById(id);
         if (optionalMessage.isPresent()) {
             messageRepository.deleteById(id);

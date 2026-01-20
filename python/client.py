@@ -29,7 +29,7 @@ from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat,
 # ----------------------------------------------------------------------
 # Configuration ---------------------------------------------------------
 # ----------------------------------------------------------------------
-USER_ID=52
+USER_ID=102
 BASE_URL = "http://localhost:8080"          # change if your server runs elsewhere
 REGISTER_ENDPOINT = f"{BASE_URL}/user/create"
 #NONCE_ENDPOINT = f"{BASE_URL}/auth/nonce"

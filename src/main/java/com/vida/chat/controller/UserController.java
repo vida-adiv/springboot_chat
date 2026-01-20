@@ -26,7 +26,7 @@ public class UserController {
         userRepository.save(user);
         return "saved";
     }
-    @GetMapping(path="/users")
+    @GetMapping(path="/user/all")
     @ResponseBody
     public Iterable<User> getAllUsers() {
         // JpaRepository already provides findAll()
