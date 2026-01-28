@@ -22,9 +22,9 @@ public class UserController {
 
     @PostMapping(path="/user/create")
     @ResponseBody
-    public String addUser(@RequestBody User user){
+    public User addUser(@RequestBody User user){
         userRepository.save(user);
-        return "saved";
+        return user;
     }
     @GetMapping(path="/user/all")
     @ResponseBody

@@ -9,18 +9,18 @@ public class Message {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     int id;
-    int rec;
+    int recipient;
     String msg;
     protected Message() {
         // JPA needs it; leave empty or initialise defaults if you wish
     }
-    public Message(int rec,String msg){
-        this.rec =rec;
+    public Message(int recipient, String msg){
+        this.recipient = recipient;
         this.msg=msg;
     }
 
-    public int getRec() {
-        return rec;
+    public int getRecipient() {
+        return recipient;
     }
 
     public String getMsg() {
@@ -31,8 +31,8 @@ public class Message {
         this.msg = msg;
     }
 
-    public void setRec(int rec) {
-        this.rec = rec;
+    public void setRecipient(int recipient) {
+        this.recipient = recipient;
     }
     public int getId() {
         return id;

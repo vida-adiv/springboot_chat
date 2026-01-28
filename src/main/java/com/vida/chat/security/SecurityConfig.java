@@ -3,7 +3,6 @@ package com.vida.chat.security;
 import com.vida.chat.service.JwtProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
@@ -24,9 +23,11 @@ public class SecurityConfig {
                 .authorizeHttpRequests(
                         authz -> authz.requestMatchers(
                                 "/auth/**",
-                                "/user/create").permitAll().anyRequest().authenticated())
-                .addFilterBefore(new JwtAuthFilter(jwtProvider), org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class)
-                .httpBasic(Customizer.withDefaults());
+                                "/user/**")
+                                .permitAll()
+                                .anyRequest()
+                                .authenticated())
+                .addFilterBefore(new JwtAuthFilter(jwtProvider), org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 }

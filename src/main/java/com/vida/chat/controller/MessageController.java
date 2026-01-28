@@ -26,7 +26,9 @@ public class MessageController {
     produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<@NonNull MessageResponse> sendMsg(@RequestBody Message msg){
+        System.out.println(msg);
         messageRepository.save(msg);
+
         return ResponseEntity.accepted().body(new MessageResponse(200, "saved"));
     }
 
@@ -34,7 +36,9 @@ public class MessageController {
     @ResponseBody
     public List<Message> getMsg(@AuthenticationPrincipal Integer userId){
         //todo get recipient id from token, otherwise this is NOT SECURE!!!
-        return messageRepository.findByRec(userId);
+        //todo test
+        int recipient=userId;
+        return messageRepository.findByRecipient(recipient);
     }
 
     @DeleteMapping(path="/msg/{id}",

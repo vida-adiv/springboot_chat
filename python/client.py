@@ -29,11 +29,11 @@ from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat,
 # ----------------------------------------------------------------------
 # Configuration ---------------------------------------------------------
 # ----------------------------------------------------------------------
-USER_ID=102
-BASE_URL = "http://localhost:8080"          # change if your server runs elsewhere
+USER_ID = 2
+BASE_URL = "http://localhost:8080"  # change if your server runs elsewhere
 REGISTER_ENDPOINT = f"{BASE_URL}/user/create"
-#NONCE_ENDPOINT = f"{BASE_URL}/auth/nonce"
-NONCE_ENDPOINT_TEMPLATE =f"{BASE_URL}/auth/nonce/{{user_id}}"
+# NONCE_ENDPOINT = f"{BASE_URL}/auth/nonce"
+NONCE_ENDPOINT_TEMPLATE = f"{BASE_URL}/auth/nonce/{{user_id}}"
 TOKEN_ENDPOINT = f"{BASE_URL}/auth/token"
 
 # Where to keep the generated key pair (PEM files).  Feel free to change.
@@ -116,7 +116,7 @@ def register_user(username: str) -> bool:
     """
     payload = {
         "name": username,
-        "bio": "default bio",                     # not used in the public‑key flow
+        "bio": "default bio",  # not used in the public‑key flow
         "publicKey": load_public_key_pem(),
     }
     print(payload)
@@ -129,7 +129,7 @@ def register_user(username: str) -> bool:
         return False
 
 
-def get_nonce(userId:int) -> str:
+def get_nonce(userId: int) -> str:
     """GET /auth/nonce?username=… → returns the raw nonce string."""
 
     resp = requests.get(NONCE_ENDPOINT_TEMPLATE.format(user_id=userId))
@@ -187,7 +187,7 @@ def exchange_token(userId: int, nonce: str, signature_b64url: str) -> str:
     return token
 
 
-def call_protected_endpoint(jwt: str, path: str = "/api/messages"):
+def call_protected_endpoint(jwt: str, path: str = "/user/all"):
     """
     Example of using the JWT to call a protected endpoint.
     Adjust the path to whatever your server exposes.
@@ -196,8 +196,47 @@ def call_protected_endpoint(jwt: str, path: str = "/api/messages"):
     headers = {"Authorization": f"Bearer {jwt}"}
     resp = requests.get(url, headers=headers)
     print(f"[+] GET {path} → {resp.status_code}")
-    print(resp.text)
+    print("\n", resp.text, "\n")
 
+
+def send_msg(recipient_id: int, message_content: str, token: str) -> None:
+    """Sends a message to the server.
+
+    Args:
+        recipient_id: The username of the sender.
+        message_content: The content of the message.
+        token: The authentication token.
+    """
+    url = f"{BASE_URL}/msg"
+    payload = {
+        "recipient": recipient_id,
+        "msg": message_content,
+    }
+    headers = {
+        "Authorization": f"Bearer {token}",  # Assuming token is used as Bearer token
+        "Content-Type": "application/json",
+    }
+
+    try:
+        resp = requests.post(url, json=payload, headers=headers)
+        if resp.status_code == 202:
+            print("Message sent successfully.")
+        else:
+            print(f"Error sending message: {resp.status_code} - {resp.text}")
+    except requests.exceptions.RequestException as e:
+        print(f"Request failed: {e}")
+
+def get_msg(token:str):
+    url = f"{BASE_URL}/msg"
+    headers = {
+        "Authorization": f"Bearer {token}",  # Assuming token is used as Bearer token
+        "Content-Type": "application/json",
+    }
+    try:
+        resp = requests.get(url, headers=headers)
+        print(resp.text)
+    except Exception as e:
+        print(f"Request failed: {e}")
 
 # ----------------------------------------------------------------------
 # Main workflow ---------------------------------------------------------
@@ -205,7 +244,7 @@ def call_protected_endpoint(jwt: str, path: str = "/api/messages"):
 def main():
     if len(sys.argv) < 3:
         print("Usage: python client_old.py <username> <action>")
-        print("  actions: generate-keys | register | login | test")
+        print("  actions: generate-keys | register | login | write | test")
         sys.exit(1)
 
     username = sys.argv[1]
@@ -256,6 +295,28 @@ def main():
         token_path.write_text(jwt, encoding="utf-8")
         print(f"[+] JWT saved to {token_path}")
         return
+    if action == "write":
+        token_path = KEY_DIR / f"{username}_jwt.txt"
+        if not token_path.is_file():
+            print("[!] No saved JWT found – run 'login' first.")
+            sys.exit(1)
+        jwt = token_path.read_text(encoding="utf-8").strip()
+        user_input = input("Recipient ID:")
+        recipient_id= int(user_input)
+        user_input = input("Message:")
+
+        send_msg(recipient_id,user_input,jwt)
+        return
+    if action == "read":
+        token_path = KEY_DIR / f"{username}_jwt.txt"
+        if not token_path.is_file():
+            print("[!] No saved JWT found – run 'login' first.")
+            sys.exit(1)
+        jwt = token_path.read_text(encoding="utf-8").strip()
+        get_msg(jwt)
+        return
+
+
 
     # --------------------------------------------------------------
     # 4️⃣ Use the JWT to call a protected endpoint (demo)
