@@ -12,7 +12,7 @@ public class Message {
     int recipient;
     String msg;
     protected Message() {
-        // JPA needs it; leave empty or initialise defaults if you wish
+        // JPA needs it
     }
     public Message(int recipient, String msg){
         this.recipient = recipient;

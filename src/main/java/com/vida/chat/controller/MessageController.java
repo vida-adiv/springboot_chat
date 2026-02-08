@@ -44,12 +44,16 @@ public class MessageController {
     @DeleteMapping(path="/msg/{id}",
     consumes =MediaType.APPLICATION_JSON_VALUE,
             produces=MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<@NonNull MessageResponse> deleteMsg(@PathVariable int id){
-        //TODO verify user. Get userId from token and only search that users messages
+    public ResponseEntity<@NonNull MessageResponse> deleteMsg(@AuthenticationPrincipal Integer userId, @PathVariable int id){
         Optional<Message> optionalMessage = messageRepository.findById(id);
         if (optionalMessage.isPresent()) {
-            messageRepository.deleteById(id);
-            return ResponseEntity.accepted().body(new MessageResponse(200, "deleted"));
+            int recipient = userId;
+            if (recipient == optionalMessage.get().getRecipient()){
+                messageRepository.deleteById(id);
+                return ResponseEntity.accepted().body(new MessageResponse(200, "deleted"));
+            } else {
+                return ResponseEntity.badRequest().body(new MessageResponse(404, "message not found for this user"));
+            }
         } else {
             return ResponseEntity.badRequest().body(new MessageResponse(404, "message not found"));
         }
