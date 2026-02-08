@@ -29,7 +29,7 @@ from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat,
 # ----------------------------------------------------------------------
 # Configuration ---------------------------------------------------------
 # ----------------------------------------------------------------------
-USER_ID = 2
+USER_ID = 1
 BASE_URL = "http://localhost:8080"  # change if your server runs elsewhere
 REGISTER_ENDPOINT = f"{BASE_URL}/user/create"
 # NONCE_ENDPOINT = f"{BASE_URL}/auth/nonce"
@@ -198,6 +198,24 @@ def call_protected_endpoint(jwt: str, path: str = "/user/all"):
     print(f"[+] GET {path} → {resp.status_code}")
     print("\n", resp.text, "\n")
 
+def delete_msg(jwt: str, msg_id: int) -> bool:
+    """
+    DELETE /msg/{id} with the JWT in Authorization header.
+    On success the server returns a JSON object containing the message:
+        { "code": 200, "message": "deleted" }
+    """
+    url = f"{BASE_URL}/msg/{msg_id}"
+    headers = {"Authorization": f"Bearer {jwt}", "Content-Type": "application/json"}
+    resp = requests.delete(url, headers=headers)
+    if resp.status_code == 200:
+        print(f"[+] Message ID: {msg_id} deleted successfully.")
+        return True
+    else:
+        print(f"[!] Deletion failed ({resp.status_code}): {resp.text}")
+        return False
+
+
+
 
 def send_msg(recipient_id: int, message_content: str, token: str) -> None:
     """Sends a message to the server.
@@ -314,6 +332,17 @@ def main():
             sys.exit(1)
         jwt = token_path.read_text(encoding="utf-8").strip()
         get_msg(jwt)
+        return
+
+    if action == "delete":
+        #ask user for message id
+        msg_id=input("Please enter message ID: ")
+        token_path = KEY_DIR / f"{username}_jwt.txt"
+        if not token_path.is_file():
+            print("[!] No saved JWT found – run 'login' first.")
+            sys.exit(1)
+        jwt = token_path.read_text(encoding="utf-8").strip()
+        delete_msg(jwt,msg_id)
         return
 
 
