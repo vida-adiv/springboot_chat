@@ -25,3 +25,7 @@ replay_pid*
 /target/
 /.idea/
 /python/keys/
+python/src/__pycache__/*
+python/src/user/*/private_key.pem
+python/src/user/*/public_key.pem
+python/src/user/*

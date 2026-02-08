@@ -30,7 +30,7 @@ class registrator:
         return private_pem, public_pem
 
     def register_user(self,name:str):
-        path = Path(name)
+        path = Path("user/"+name)
         # Load keys from file
         private_pem, public_pem = self.load_keys_from_file(path)
         payload={

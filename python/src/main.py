@@ -10,18 +10,19 @@ def main():
         print("  actions: generate-keys | register | login | write | test | exit")
         sys.exit(1)
     username = sys.argv[1]
+    userdir="user/"+username
     action = sys.argv[2]
     user=None
     while True:
         if action == "generate-keys":
             priv_pem, pub_pem = my_utils.generate_rsa_keypair()
-            my_utils.save_keys(Path(username),priv_pem, pub_pem)
+            my_utils.save_keys(Path(userdir),priv_pem, pub_pem)
             print("[+] RSA key pair generated and saved")
         elif action == "register":
             reg=registrator.registrator()
             reg.register_user(username)
         elif action == 'load':
-            user=User(username)
+            user=User(userdir)
             
         elif action == 'exit':
             break
