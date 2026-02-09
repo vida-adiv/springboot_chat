@@ -35,8 +35,6 @@ public class MessageController {
     @GetMapping(path="/msg")
     @ResponseBody
     public List<Message> getMsg(@AuthenticationPrincipal Integer userId){
-        //todo get recipient id from token, otherwise this is NOT SECURE!!!
-        //todo test
         int recipient=userId;
         return messageRepository.findByRecipient(recipient);
     }
